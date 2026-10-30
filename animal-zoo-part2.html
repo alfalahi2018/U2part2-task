@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Animal Body Parts Zoo - Part 2</title>
+<style>
+:root{--bg:#f4f8f2;--card:#fff;--ink:#1d3a2f;--green:#3d6e5a;--line:#cfe0d4;--ok:#2e9e5b;--bad:#d64545;--chip:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13211b;--card:#1c2f27;--ink:#eaf4ee;--green:#4f8d74;--line:#35564a;--chip:#243a31}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Trebuchet MS",Verdana,sans-serif;padding:12px}
+.wrap{max-width:900px;margin:auto}
+.top{display:flex;gap:10px;flex-wrap:wrap}
+.top input{flex:1;min-width:110px;border:0;border-bottom:2px solid var(--ink);background:transparent;color:var(--ink);font-size:16px;padding:6px}
+h1{text-align:center;color:var(--green);margin:10px 0;font-size:clamp(26px,5vw,42px)}
+.bar{background:var(--green);color:#fff;border-radius:14px;padding:10px 16px;font-weight:bold;font-size:18px}
+.hint{font-style:italic;margin:8px 4px}
+.q{background:var(--card);border:3px solid var(--green);border-radius:20px;padding:12px 14px;margin:12px 0}
+.qt{font-size:23px;font-weight:bold;cursor:pointer;margin-bottom:8px}
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.opt{background:var(--chip);color:var(--ink);border:3px solid var(--line);border-radius:18px;padding:8px 4px;font-size:20px;font-weight:bold;cursor:pointer;font-family:inherit;transition:transform .15s}
+.opt:hover{transform:scale(1.05)}
+.opt span{display:block;font-size:76px;line-height:1.2}
+.opt.ok{background:var(--ok);color:#fff;border-color:var(--ok);animation:pop .5s}
+.opt.bad{background:var(--bad);color:#fff;border-color:var(--bad);animation:shake .45s;pointer-events:none;opacity:.7}
+@keyframes pop{50%{transform:scale(1.2)}}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.score{border:3px solid var(--ink);padding:8px 18px;font-weight:bold;font-size:22px;border-radius:6px}
+button.act{background:var(--green);color:#fff;border:0;border-radius:12px;padding:12px 22px;font-size:18px;font-weight:bold;cursor:pointer;font-family:inherit}
+.credit{text-align:center;margin:18px 0;opacity:.8}
+#win{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:20}
+#win div{background:var(--card);border-radius:24px;padding:30px;text-align:center;max-width:90%;animation:pop .6s}
+#win h2{font-size:34px;margin:0 0 8px;color:var(--green)}
+.fall{position:fixed;top:-50px;font-size:34px;animation:fall 3s linear forwards;z-index:30;pointer-events:none}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><label>Name: <input></label><label>Class: <input></label><label>Date: <input></label></div>
+<h1>🐾 Animal Body Parts Zoo 🐾</h1>
+<div class="bar">Part 2: Which animal? Tap the answer (8 marks)</div>
+<p class="hint">Tap a picture to answer. Tap a question to hear it.</p>
+<div id="q2"></div>
+<div class="foot"><div class="score">Part 2: <span id="sc2">0</span> / 8</div><button class="act" id="rs">🔄 Try again</button></div>
+<div class="credit">Created by T.Badria Alfalahi</div>
+</div>
+<div id="win"><div><div style="font-size:90px">🏆</div><h2>Excellent work!</h2><p style="font-size:22px">You scored <b id="fs">8</b> / 8</p><button class="act" id="cl2">Close</button></div></div>
+<script>
+const E={eagle:"🦅",cat:"🐱",goose:"🪿",fish:"🐟",porcupine:"🦔",grasshopper:"🦗",dog:"🐶",seal:"🦭",camel:"🐪",chameleon:"🦎",goat:"🐐",shark:"🦈"};
+const Q=[["Which animal has a hump?",["camel","shark","dog"],"camel"],["Which animal has flippers?",["cat","seal","goose"],"seal"],["Which animal has scales and a fin?",["fish","porcupine","goat"],"fish"],["Which animal uses its tongue to catch insects?",["eagle","camel","chameleon"],"chameleon"],["Which animal has antennae?",["grasshopper","dog","goat"],"grasshopper"],["Which animal has spines to protect itself?",["cat","porcupine","seal"],"porcupine"],["Which animal has whiskers and paws?",["fish","goose","cat"],"cat"],["Which animal has claws and a beak?",["eagle","dog","shark"],"eagle"]];
+let s2=0,ac;
+function snd(f,d,t,v){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=t||"sine";o.frequency.value=f;g.gain.value=v||.15;o.connect(g);g.connect(ac.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.stop(ac.currentTime+d)}catch(e){}}
+function good(){snd(523,.15);setTimeout(()=>snd(659,.15),120);setTimeout(()=>snd(784,.3),240)}
+function bad(){snd(180,.35,"sawtooth",.12)}
+function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
+function rain(list){list.forEach((e,i)=>setTimeout(()=>{const s=document.createElement("div");s.className="fall";s.textContent=e;s.style.left=Math.random()*95+"vw";document.body.appendChild(s);setTimeout(()=>s.remove(),3100)},i*90))}
+let answered=0;
+function build(){s2=0;answered=0;sc2.textContent=0;win.style.display="none";
+ const h=document.getElementById("q2");h.innerHTML="";
+ Q.forEach((q,i)=>{const d=document.createElement("div");d.className="q";let tried=false,done=false;
+  d.innerHTML=`<div class="qt">${i+1}) ${q[0]} 🔊</div><div class="opts"></div>`;
+  d.querySelector(".qt").onclick=()=>say(q[0]);
+  q[1].forEach(o=>{const b=document.createElement("button");b.className="opt";b.innerHTML=`<span>${E[o]}</span>${o}`;
+   b.onclick=()=>{if(done)return;say(o);
+    if(o===q[2]){done=true;answered++;b.classList.add("ok");good();rain(["⭐"]);if(!tried){s2++;sc2.textContent=s2}
+     if(answered==Q.length)setTimeout(()=>{fs.textContent=s2;win.style.display="flex";rain(["🎉","⭐","🎈","✨","🏆","🐾","🎊","🌟","🎉","⭐","🎈","✨","🎊","🌟","🏆","🐾"]);good()},900)}
+    else{tried=true;b.classList.add("bad");bad()}};
+   d.querySelector(".opts").appendChild(b)});
+  h.appendChild(d)})}
+document.getElementById("rs").onclick=build;
+document.getElementById("cl2").onclick=()=>win.style.display="none";
+build();
+</script>
+</body>
+</html>
